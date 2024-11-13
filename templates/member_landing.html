@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Member Landing</title>
+    <style>
+        /* Global Reset */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+    
+        /* Body Styles */
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f9;
+            padding: 20px;
+        }
+    
+        h1, h2 {
+            color: #333;
+        }
+    
+        h1 {
+            text-align: center;
+            font-size: 32px;
+            padding: 20px 0;
+            background-color: #007BFF;
+            color: white;
+            border-radius: 8px;
+        }
+    
+        h2 {
+            font-size: 24px;
+            margin-top: 30px;
+        }
+    
+        p, ul, li {
+            font-size: 16px;
+            color: #555;
+        }
+    
+        /* Container Styling */
+        .container {
+            width: 80%;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: white;
+            box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
+            border-radius: 8px;
+        }
+    
+        .form-group {
+            margin-bottom: 20px;
+        }
+    
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: bold;
+        }
+    
+        input,
+        select,
+        textarea,
+        button {
+            width: 100%;
+            padding: 12px;
+            margin-bottom: 20px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            font-size: 16px;
+        }
+    
+        input[type="date"],
+        input[type="time"] {
+            width: auto;
+        }
+    
+        button {
+            background-color: #007BFF;
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+    
+        button:hover {
+            background-color: #0056b3;
+        }
+    
+        .form-container {
+            max-width: 500px;
+            margin: 0 auto;
+        }
+    
+        /* List Styling */
+        ul {
+            list-style-type: none;
+            padding: 0;
+        }
+    
+        li {
+            background-color: #fff;
+            padding: 15px;
+            margin-bottom: 10px;
+            border-radius: 5px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+    
+        li strong {
+            color: #007BFF;
+        }
+    
+        /* Flash Messages */
+        .message {
+            color: green;
+            font-weight: bold;
+        }
+    
+        /* No Events Styling */
+        .no-events {
+            font-size: 16px;
+            color: #888;
+            text-align: center;
+            margin-top: 30px;
+        }
+    </style>
+    
+</head>
+<body>
+    <h1>Welcome, {{ session['username'] }}!</h1>
+    {% if upcoming_events %}
+    <div class="container">
+        <h2>Upcoming Events for Your Club:</h2>
+        <ul>
+            {% for event in upcoming_events %}
+            <li>
+                <strong>{{ event[2] }}:</strong> {{ event[3] }} at {{ event[5] }} {{ event[6] }} - {{ event[7] }}
+                <div class="event-details">
+                    <em>{{ event[4] }}</em>
+                </div>
+            </li>
+            {% endfor %}
+        </ul>
+    </div>
+    {% else %}
+    <p class="no-events">No upcoming events for your club.</p>
+    {% endif %}
+    <!-- Form to update member details -->
+<form method="POST">
+    <div>
+        <label for="member_name">Name:</label>
+        <input type="text" id="member_name" name="member_name" value="{{ member_details[1] }}" required>
+    </div>
+    <div>
+        <label for="member_department">Department:</label>
+        <input type="text" id="member_department" name="member_department" value="{{ member_details[2] }}" required>
+    </div>
+    <div>
+        <label for="member_email">Email:</label>
+        <input type="email" id="member_email" name="member_email" value="{{ member_details[3] }}" required>
+    </div>
+    <div>
+        <label for="member_phone">Phone:</label>
+        <input type="text" id="member_phone" name="member_phone" value="{{ member_details[4] }}" required>
+    </div>
+    <button type="submit" name="update_details">Update Details</button>
+</form>
+
+</body>
+</html>

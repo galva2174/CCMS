@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Landing</title>
+    <style>
+        /* Global Reset */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+    
+        /* Body Styles */
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f9;
+            padding: 20px;
+        }
+    
+        h1, h2 {
+            color: #333;
+        }
+    
+        h1 {
+            text-align: center;
+            font-size: 32px;
+            padding: 20px 0;
+            background-color: #007BFF;
+            color: white;
+            border-radius: 8px;
+        }
+    
+        h2 {
+            font-size: 24px;
+            margin-top: 30px;
+        }
+    
+        p, ul, li {
+            font-size: 16px;
+            color: #555;
+        }
+    
+        /* Container Styling */
+        .container {
+            width: 80%;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: white;
+            box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
+            border-radius: 8px;
+        }
+    
+        .form-group {
+            margin-bottom: 20px;
+        }
+    
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: bold;
+        }
+    
+        input,
+        select,
+        textarea,
+        button {
+            width: 100%;
+            padding: 12px;
+            margin-bottom: 20px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            font-size: 16px;
+        }
+    
+        input[type="date"],
+        input[type="time"] {
+            width: auto;
+        }
+    
+        button {
+            background-color: #007BFF;
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+    
+        button:hover {
+            background-color: #0056b3;
+        }
+    
+        .form-container {
+            max-width: 500px;
+            margin: 0 auto;
+        }
+    
+        /* List Styling */
+        ul {
+            list-style-type: none;
+            padding: 0;
+        }
+    
+        li {
+            background-color: #fff;
+            padding: 15px;
+            margin-bottom: 10px;
+            border-radius: 5px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+    
+        li strong {
+            color: #007BFF;
+        }
+    
+        /* Flash Messages */
+        .message {
+            color: green;
+            font-weight: bold;
+        }
+    
+        /* No Events Styling */
+        .no-events {
+            font-size: 16px;
+            color: #888;
+            text-align: center;
+            margin-top: 30px;
+        }
+    </style>
+    
+</head>
+<body>
+    <h1>Admin Landing Page</h1>
+
+    <!-- Display owned clubs as a list of club IDs -->
+    <h2>Your Owned Clubs</h2>
+    <ul>
+        {% for club_id in owned_clubs %}
+            <li>Club ID: {{ club_id }}</li>
+        {% endfor %}
+    </ul>
+
+    <!-- Club creation form -->
+    <h2>Create a Club</h2>
+    <form class="form-container" method="POST">
+        <label for="club_id">Club ID</label>
+        <input type="text" id="club_id" name="club_id" required>
+
+        <label for="club_name">Club Name</label>
+        <input type="text" id="club_name" name="club_name" required>
+
+        <label for="department">Department</label>
+        <input type="text" id="department" name="department" required>
+
+        <label for="description">Club Description</label>
+        <textarea id="description" name="description" rows="3" required></textarea>
+
+        <button type="submit" name="create_club">Create Club</button>
+    </form>
+
+    <!-- Adding a Member to a Club -->
+    <h2>Add Member to Club</h2>
+    <form class="form-container" method="POST">
+        <label for="member_club_id">Club ID</label>
+        <input type="text" id="member_club_id" name="club_id" required>
+
+        <label for="member_id">Member ID</label>
+        <input type="text" id="member_id" name="member_id" required>
+
+        <label for="member_name">Member Name</label>
+        <input type="text" id="member_name" name="member_name" required>
+
+        <label for="member_department">Member Department</label>
+        <input type="text" id="member_department" name="member_department" required>
+
+        <label for="registration_date">Registration Date</label>
+        <input type="date" id="registration_date" name="registration_date" required>
+
+        <label for="email">Member Email</label>
+        <input type="email" id="email" name="email" required>
+
+        <label for="phone">Member Phone</label>
+        <input type="text" id="phone" name="phone" required>
+
+        <button type="submit" name="add_member">Add Member</button>
+    </form>
+
+    <!-- Removing a Member -->
+    <h2>Remove Member from Club</h2>
+    <form class="form-container" method="POST">
+        <label for="remove_club_id">Club ID</label>
+        <input type="text" id="remove_club_id" name="club_id" required>
+
+        <label for="remove_member_id">Member ID</label>
+        <input type="text" id="remove_member_id" name="member_id" required>
+
+        <button type="submit" name="remove_member">Remove Member</button>
+    </form>
+
+    <!-- Creating an Event -->
+    <h2>Create an Event</h2>
+    <form class="form-container" method="POST">
+        <label for="event_club_id">Club ID</label>
+        <input type="text" id="event_club_id" name="club_id" required>
+
+        <label for="event_id">Event ID</label>
+        <input type="text" id="event_id" name="event_id" required>
+
+        <label for="event_name">Event Name</label>
+        <input type="text" id="event_name" name="event_name" required>
+
+        <label for="event_date">Event Date</label>
+        <input type="date" id="event_date" name="event_date" required>
+
+        <label for="event_location">Event Location</label>
+        <input type="text" id="event_location" name="event_location" required>
+
+        <label for="event_block">Event Block</label>
+        <input type="text" id="event_block" name="event_block" required>
+
+        <label for="event_floor">Event Floor</label>
+        <input type="text" id="event_floor" name="event_floor" required>
+
+        <label for="event_campus">Event Campus</label>
+        <input type="text" id="event_campus" name="event_campus" required>
+
+        <label for="event_description">Event Description</label>
+        <textarea id="event_description" name="event_description" rows="3" required></textarea>
+
+        <button type="submit" name="create_event">Create Event</button>
+    </form>
+
+    <!-- Adding Resources to Events -->
+    <h2>Add Resource to Event</h2>
+    <form class="form-container" method="POST">
+        <label for="resource_club_id">Club ID</label>
+        <input type="text" id="resource_club_id" name="club_id" required>
+
+        <label for="resource_event_id">Event ID</label>
+        <input type="text" id="resource_event_id" name="e_id" required>
+
+        <label for="resource_id">Resource ID</label>
+        <input type="text" id="resource_id" name="r_id" required>
+
+        <label for="time_used_from">Time Used From</label>
+        <input type="time" id="time_used_from" name="time_used_from" required>
+
+        <label for="time_used_till">Time Used Till</label>
+        <input type="time" id="time_used_till" name="time_used_till" required>
+
+        <button type="submit" name="add_resource">Add Resource</button>
+    </form>
+
+    {% with messages = get_flashed_messages() %}
+        {% if messages %}
+            <ul>
+            {% for message in messages %}
+                <li class="message">{{ message }}</li>
+            {% endfor %}
+            </ul>
+        {% endif %}
+    {% endwith %}
+</body>
+</html>

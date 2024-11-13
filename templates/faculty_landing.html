@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Faculty Landing Page</title>
+    <style>
+        /* Global Reset */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+    
+        /* Body Styles */
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f9;
+            padding: 20px;
+        }
+    
+        h1, h2 {
+            color: #333;
+        }
+    
+        h1 {
+            text-align: center;
+            font-size: 32px;
+            padding: 20px 0;
+            background-color: #007BFF;
+            color: white;
+            border-radius: 8px;
+        }
+    
+        h2 {
+            font-size: 24px;
+            margin-top: 30px;
+        }
+    
+        p, ul, li {
+            font-size: 16px;
+            color: #555;
+        }
+    
+        /* Container Styling */
+        .container {
+            width: 80%;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: white;
+            box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
+            border-radius: 8px;
+        }
+    
+        .form-group {
+            margin-bottom: 20px;
+        }
+    
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: bold;
+        }
+    
+        input,
+        select,
+        textarea,
+        button {
+            width: 100%;
+            padding: 12px;
+            margin-bottom: 20px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            font-size: 16px;
+        }
+    
+        input[type="date"],
+        input[type="time"] {
+            width: auto;
+        }
+    
+        button {
+            background-color: #007BFF;
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+    
+        button:hover {
+            background-color: #0056b3;
+        }
+    
+        .form-container {
+            max-width: 500px;
+            margin: 0 auto;
+        }
+    
+        /* List Styling */
+        ul {
+            list-style-type: none;
+            padding: 0;
+        }
+    
+        li {
+            background-color: #fff;
+            padding: 15px;
+            margin-bottom: 10px;
+            border-radius: 5px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+    
+        li strong {
+            color: #007BFF;
+        }
+    
+        /* Flash Messages */
+        .message {
+            color: green;
+            font-weight: bold;
+        }
+    
+        /* No Events Styling */
+        .no-events {
+            font-size: 16px;
+            color: #888;
+            text-align: center;
+            margin-top: 30px;
+        }
+    </style>
+    
+</head>
+<body>
+    <div class="container">
+        <h1>Welcome, Faculty Member</h1>
+
+        {% if members %}
+            <h2>Members of Your Club:</h2>
+            <ul>
+                {% for member in members %}
+                    <li><span class="member-info">{{ member[1] }}</span> - {{ member[2] }}</li>
+                {% endfor %}
+            </ul>
+        {% else %}
+            <p>No members found for your club.</p>
+        {% endif %}
+
+        {% if resources %}
+            <h2>Resources Used for Club Events:</h2>
+            <ul>
+                {% for resource in resources %}
+                    <li class="resource-info">
+                        <span>Resource ID: <strong>{{ resource[0] }}</strong></span>
+                        <span>Time Used: {{ resource[1] }} to {{ resource[2] }}</span>
+                    </li>
+                {% endfor %}
+            </ul>
+        {% else %}
+            <p>No resources found for your club events.</p>
+        {% endif %}
+
+        <div class="footer">
+            &copy; 2023 Club Management System
+        </div>
+    </div>
+    <!-- Form to add a sponsor -->
+<form method="POST" action="{{ url_for('faculty_landing') }}">
+    <div>
+        <label for="sponsor_name">Sponsor Name:</label>
+        <input type="text" id="sponsor_name" name="sponsor_name" required>
+    </div>
+    <div>
+        <label for="sponsor_email">Sponsor Email:</label>
+        <input type="email" id="sponsor_email" name="sponsor_email" required>
+    </div>
+    <div>
+        <label for="sponsor_phone1">Sponsor Phone 1:</label>
+        <input type="text" id="sponsor_phone1" name="sponsor_phone1" required>
+    </div>
+    <div>
+        <label for="sponsor_phone2">Sponsor Phone 2:</label>
+        <input type="text" id="sponsor_phone2" name="sponsor_phone2">
+    </div>
+    <div>
+        <label for="sponsor_amount">Sponsor Amount:</label>
+        <input type="number" id="sponsor_amount" name="sponsor_amount" required min="100" step="0.01">
+    </div>
+    <div>
+        <button type="submit" name="add_sponsor">Add Sponsor</button>
+    </div>
+</form>
+
+
+
+
+</body>
+</html>
