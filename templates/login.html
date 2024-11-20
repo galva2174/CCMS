@@ -69,12 +69,23 @@
         button:hover {
             background-color: #0056b3;
         }
-
     </style>
 </head>
 <body>
     <div class="login-container">
         <h2>Login</h2>
+
+        <!-- Display flash message as an alert if it exists -->
+        {% with messages = get_flashed_messages(with_categories=true) %}
+          {% if messages %}
+            <script>
+                {% for category, message in messages %}
+                    alert("{{ message }}");
+                {% endfor %}
+            </script>
+          {% endif %}
+        {% endwith %}
+
         <form method="post" action="{{ url_for('login') }}">
             <label for="user_id">User ID</label>
             <input type="text" name="user_id" id="user_id" required>

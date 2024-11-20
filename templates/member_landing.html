@@ -169,6 +169,15 @@
     </div>
     <button type="submit" name="update_details">Update Details</button>
 </form>
-
+</form>
+{% with messages = get_flashed_messages(with_categories=true) %}
+{% if messages %}
+<script>
+    {% for category, message in messages %}
+        alert("{{ message }}");
+    {% endfor %}
+</script>
+{% endif %}
+{% endwith %}
 </body>
 </html>

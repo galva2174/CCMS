@@ -160,10 +160,28 @@
             <p>No resources found for your club events.</p>
         {% endif %}
 
+        <!-- New Sponsorship Totals Section -->
+        {% if sponsorship_totals %}
+            <h2>Club Sponsorship Totals</h2>
+            <ul>
+                {% for sponsorship in sponsorship_totals %}
+                    <li>
+                        <span><strong>Club Name:</strong> {{ sponsorship[0] }}</span><br>
+                        <span><strong>Total Sponsorship (Rs.):</strong> {{ sponsorship[1]}}</span>
+                    </li>
+                {% endfor %}
+            </ul>
+        {% else %}
+            <p>No sponsorship totals available.</p>
+        {% endif %}
+
         <div class="footer">
             &copy; 2023 Club Management System
         </div>
     </div>
+</body>
+
+
     <!-- Form to add a sponsor -->
 <form method="POST" action="{{ url_for('faculty_landing') }}">
     <div>
@@ -190,7 +208,15 @@
         <button type="submit" name="add_sponsor">Add Sponsor</button>
     </div>
 </form>
-
+{% with messages = get_flashed_messages(with_categories=true) %}
+{% if messages %}
+<script>
+    {% for category, message in messages %}
+        alert("{{ message }}");
+    {% endfor %}
+</script>
+{% endif %}
+{% endwith %}
 
 
 

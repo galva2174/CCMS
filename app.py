@@ -2,6 +2,7 @@ from flask import Flask, render_template, request, redirect, url_for, flash, ses
 import mysql.connector
 from mysql.connector import Error
 import hashlib
+from psycopg2 import IntegrityError
 
 app = Flask(__name__)
 app.secret_key = 'your_secret_key'
@@ -65,6 +66,9 @@ def login():
             session['user_id'] = user[3]  # user_id
             session['username'] = user[0]  # username
             session['role'] = user[2]  # role
+            cursor.close()
+            connection.close()
+            
             if user[2] == 'admin':
                 return redirect(url_for('admin_landing'))
             elif user[2] == 'faculty':
@@ -73,11 +77,12 @@ def login():
                 return redirect(url_for('member_landing'))
         else:
             flash('Invalid user ID or password', 'error')
-        
-        cursor.close()
-        connection.close()
-    
+            cursor.close()
+            connection.close()
+            return render_template('login.html')  # Reload login page with the flash message
+
     return render_template('login.html')
+
 
 @app.route('/logout')
 def logout():
@@ -109,8 +114,18 @@ def admin_landing():
             # Add user_id as the owner of the club
             connection = get_db_connection()
             cursor = connection.cursor()
-            cursor.execute("INSERT INTO Clubs (club_id, name, department, description, user_id) VALUES (%s, %s, %s, %s, %s)", 
-                           (club_id, name, department, description, user_id))
+            try:
+                cursor.execute(
+                    "INSERT INTO Clubs (club_id, name, department, description, user_id) VALUES (%s, %s, %s, %s, %s)",
+                    (club_id, name, department, description, user_id)
+                )
+                connection.commit()
+                flash("Club added successfully!", "success")  # Display success message
+            except Exception as e:
+                connection.rollback()  # Rollback the transaction in case of an error
+                flash("Error: Duplicate club_id. Please choose a unique ID.", "danger")  # Display error message
+                print(f"IntegrityError: {e}")  # Optional: Log the error for debugging
+            
             connection.commit()
             connection.close()
             flash('Club created successfully!', 'success')
@@ -146,7 +161,7 @@ def admin_landing():
             except Exception as e:
                 connection.rollback()
                 connection.close()
-                flash(f'Error: {str(e)}', 'error')
+                flash(f'Error: Member_id does not exist', 'error')
 
         # Removing a Member
         elif 'remove_member' in request.form:
@@ -156,12 +171,18 @@ def admin_landing():
                 return redirect(url_for('admin_landing'))
 
             member_id = request.form['member_id']
-            connection = get_db_connection()
-            cursor = connection.cursor()
-            cursor.execute("DELETE FROM Members WHERE mem_id = %s AND club_id = %s", (member_id, club_id))
-            connection.commit()
-            connection.close()
-            flash('Member removed successfully!', 'success')
+            try:
+                connection = get_db_connection()
+                cursor = connection.cursor()
+                cursor.execute("DELETE FROM Members WHERE mem_id = %s AND club_id = %s", (member_id, club_id))
+                connection.commit()
+                connection.close()
+                flash('Member removed successfully!', 'success')
+            except Exception as e:
+                connection.rollback()
+                connection.close()
+                flash(f'Error: Member_id does not exist', 'error')
+
 
         # Creating an Event
         elif 'create_event' in request.form:
@@ -178,20 +199,24 @@ def admin_landing():
             floor = request.form['event_floor']
             campus = request.form['event_campus']
             description = request.form['event_description']
-
-            connection = get_db_connection()
-            cursor = connection.cursor()
-            cursor.execute("INSERT INTO Events (e_id, club_id, name, date, block, floor, campus, description) VALUES (%s, %s, %s, %s, %s, %s, %s, %s)", 
-                           (event_id, club_id, event_name, event_date, block, floor, campus, description))
-            connection.commit()
-            connection.close()
-            flash('Event created successfully!', 'success')
+            try:
+                connection = get_db_connection()
+                cursor = connection.cursor()
+                cursor.execute("INSERT INTO Events (e_id, club_id, name, date, block, floor, campus, description) VALUES (%s, %s, %s, %s, %s, %s, %s, %s)", 
+                            (event_id, club_id, event_name, event_date, block, floor, campus, description))
+                connection.commit()
+                connection.close()
+                flash('Event created successfully!', 'success')
+            except Exception as e:
+                connection.rollback()
+                connection.close()
+                flash("Event_id already exists.")
 
         # Adding a Resource
         elif 'add_resource' in request.form:
             club_id = request.form['club_id']
             if int(club_id) not in owned_clubs:
-                flash('You can only add resources to events in clubs you own!', 'error')
+                flash('You can only add resources to clubs you own!', 'error')
                 return redirect(url_for('admin_landing'))
 
             e_id = request.form.get('e_id')
@@ -225,7 +250,7 @@ def admin_landing():
                 flash('Resource added successfully!', 'success')
             
             except Error as e:
-                flash('Error: Could not add resource', 'error')
+                flash('Error: Resource_id already in use', 'error')
                 connection.rollback()
             
             finally:
@@ -248,8 +273,6 @@ def faculty_landing():
     cursor.execute("SELECT club_id FROM Faculty WHERE faculty_id = %s", (faculty_id,))
     result = cursor.fetchone()
 
-    # Debugging: Print the result to see what is returned
-    print("Faculty club_id result:", result)
 
     # If no club is found, handle the join club process
     if not result:
@@ -282,11 +305,27 @@ def faculty_landing():
         # Extract the club_id (ensure it's correctly fetched)
         club_id = result[-1]  # club_id is the last column in the result
 
-        # Fetch members and resources related to the faculty's club
-        cursor.execute("SELECT * FROM Members WHERE club_id = %s", (club_id,))
+        cursor.execute("""
+    SELECT name, email, department
+    FROM Members
+    WHERE club_id = (
+        SELECT club_id
+        FROM Faculty
+        WHERE faculty_id = %s
+    )
+""", (faculty_id,))
         members = cursor.fetchall()
 
-        # Fetch event details related to the faculty's club
+        cursor.execute("""
+            SELECT Clubs.name AS club_name, SUM(Sponsors.amount) AS total_sponsorship
+            FROM Sponsors
+            JOIN Clubs ON Sponsors.club_id = Clubs.club_id
+            GROUP BY Clubs.name
+            ORDER BY total_sponsorship DESC
+        """)
+
+        sponsorship_totals = cursor.fetchall()
+        
         cursor.execute("SELECT e_id FROM Events WHERE club_id = %s", (club_id,))
         event_id = cursor.fetchone()
 
@@ -296,7 +335,7 @@ def faculty_landing():
         else:
             resources = []
 
-        # Handle adding a sponsor
+        
         if request.method == 'POST' and 'add_sponsor' in request.form:
             sponsor_name = request.form['sponsor_name']
             sponsor_email = request.form['sponsor_email']
@@ -317,7 +356,7 @@ def faculty_landing():
         cursor.close()
         connection.close()
 
-        return render_template('faculty_landing.html', members=members, resources=resources)
+        return render_template('faculty_landing.html', members=members, resources=resources, sponsorship_totals=sponsorship_totals)
 @app.route('/member_landing', methods=['GET', 'POST'])
 def member_landing():
     if 'role' not in session or session['role'] != 'member':

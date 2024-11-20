@@ -61,6 +61,8 @@ CREATE TABLE Announcements (
     date DATE,
     time TIME,
     year YEAR
+    club_id INT,
+    FOREIGN KEY(club_id) REFERENCES Clubs(club_id)
 );
 
 -- Creating the Members table
@@ -91,7 +93,9 @@ CREATE TABLE Resources (
 DELIMITER //
 CREATE PROCEDURE GetEventsByClub(IN clubID INT)
 BEGIN
+    
     SELECT * FROM Events WHERE club_id = clubID;
+    
 END //
 DELIMITER ;
 
@@ -111,7 +115,7 @@ BEFORE INSERT ON Sponsors
 FOR EACH ROW
 BEGIN
     IF NEW.amount < 100 THEN
-        SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'Sponsor amount must be at least $100';
+        SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'Sponsor amount must be at least Rs.100';
     END IF;
 END //
 DELIMITER ;
